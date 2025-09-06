@@ -14,7 +14,7 @@ class Assistant(Agent):
     def __init__(self) -> None:
         super().__init__(
             instructions=AGENT_INSTRUCTION,
-            llm=google.beta.realtime.RealtimeModel(model="gemini-2.0-flash-live-001", voice="Aoede", temperature=0.7),
+            llm=google.beta.realtime.RealtimeModel(model="gemini-2.5-flash-exp-native-audio-thinking-dialog"voice="Aoede", temperature=0.7),
             tools=[get_weather, search_web, send_email]
         )
 
