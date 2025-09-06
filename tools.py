@@ -1,17 +1,53 @@
-from livekit.agents import RunContext
-from typing import Optional
 import logging
-from email.mime.multipart import MIMEMultipart
-import smtplib
-from dotenv import load_dotenv
-from email.mime.text import MIMEText
+from livekit.agents import function_tool, RunContext
+import requests
+from langchain_community.tools import DuckDuckGoSearchRun
+from typing import Optional
 import os
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import smtplib
 
-load_dotenv(".env")
 
 
-def send_email(
-    to_email: str, subject: str, message: str, cc_email: Optional[str] = None
+
+# Retrieve real time weather using Weather Report API
+@function_tool
+async def get_weather(context: RunContext, city: str) -> str:
+
+    try:
+        response = requests.get(f"http://wttr.in/{city}?format=3")
+        if response.status_code == 200:
+            response_weather = f"Weather for {city} is {response.text.strip()}"
+            logging.info(response_weather)
+
+        else:
+            response_weather = f"Failed to provide weather from {city}"
+            logging.error(response_weather)
+
+    except Exception as e:
+        response_weather = f"Error retrieving weather for {city}: {e}"
+        logging.error(response_weather)
+
+    return response_weather
+
+
+# Retrieve web search using Duck Duck go langchain
+@function_tool
+async def search_web(context: RunContext, query: str) -> str:
+    try:
+        results = DuckDuckGoSearchRun().run(tool_input=query)
+        logging.info(f"Search result of {query}: {results}")
+        return results
+
+    except Exception as e:
+        logging.error(f"Error for retrieving the web for query {query}: {e}")
+        return f"An error for searching query {query}"
+
+
+@function_tool
+async def send_email(
+    context: RunContext, to_email: str, subject: str, message: str, cc_email: Optional[str] = None
 ):
     try:
         # Gmail SMTP configuration
@@ -67,6 +103,3 @@ def send_email(
     except Exception as e:
         logging.error(f"Error while sending email: {e}")
         return f"An error while sending email: {e}"
-
-
-send_email(to_email="gathanrachwiyono3@gmail.com", subject="Hello", message="hahahaha")

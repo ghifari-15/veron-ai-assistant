@@ -11,3 +11,5 @@ python-dotenv
 androidtvremote2
 pure-python-adb
 openai
+logging
+langchain-community
