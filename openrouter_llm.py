@@ -9,7 +9,7 @@ class OpenRouterLLM:
         self.client = OpenAI(
             base_url=self.base_url,
             api_key=self.api_key
-        )
+        )d
 
     async def generate(self, prompt: str) -> str:
         completion = self.client.chat.completions.create(
